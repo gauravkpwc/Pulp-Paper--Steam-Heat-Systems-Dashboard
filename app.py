@@ -26,7 +26,6 @@ col1.markdown(f"<div style='font-size:18px; font-weight:bold;'>Steam/kg of paper
 col2.markdown(f"<div style='font-size:18px; font-weight:bold;'>Boiler Efficiency:<br>{np.mean(boiler_efficiency):.2f}%</div>", unsafe_allow_html=True)
 col3.markdown(f"<div style='font-size:18px; font-weight:bold;'>Condensate Return:<br>{condensate_recovery:.2f}%</div>", unsafe_allow_html=True)
 
-# Highlight negative KPI in red
 color = "red" if leak_loss_percent < 0 else "black"
 col4.markdown(f"<div style='font-size:18px; font-weight:bold; color:{color};'>Leak Loss %:<br>{leak_loss_percent:.2f}%</div>", unsafe_allow_html=True)
 
@@ -38,7 +37,9 @@ row2_col1, row2_col2 = st.columns(2)
 # Heatmap
 heatmap_fig = px.imshow(leak_severity, color_continuous_scale='RdYlGn_r',
                         title='Leak Detection Heatmap')
+row1_col1.subheader("Leak Detection Heatmap")
 row1_col1.plotly_chart(heatmap_fig, use_container_width=True)
+row1_col1.caption("Identifies steam leaks in real-time to reduce energy losses and improve safety.")
 
 # Boiler Efficiency Trend
 efficiency_fig = go.Figure()
@@ -46,7 +47,9 @@ efficiency_fig.add_trace(go.Scatter(x=time_series, y=boiler_efficiency,
                                     mode='lines', name='Efficiency (%)'))
 efficiency_fig.update_layout(title='Boiler Efficiency Trend',
                              xaxis_title='Date', yaxis_title='Efficiency (%)')
+row1_col2.subheader("Boiler Efficiency Trend")
 row1_col2.plotly_chart(efficiency_fig, use_container_width=True)
+row1_col2.caption("Tracks boiler performance over time to ensure optimal fuel usage and cost control.")
 
 # Condensate Recovery Gauge
 gauge_fig = go.Figure(go.Indicator(
@@ -62,10 +65,14 @@ gauge_fig = go.Figure(go.Indicator(
                          'thickness': 0.75, 'value': 90}},
     title={'text': "Condensate Recovery (%)"}
 ))
+row2_col1.subheader("Condensate Recovery Gauge")
 row2_col1.plotly_chart(gauge_fig, use_container_width=True)
+row2_col1.caption("Shows recovery efficiency; higher recovery reduces water and energy costs.")
 
 # Scatter Plot
 scatter_fig = px.scatter(x=stack_temp, y=o2_levels,
                          labels={'x': 'Stack Temperature (°C)', 'y': 'O₂ Levels (%)'},
                          title='Stack Temperature vs O₂ Levels')
+row2_col2.subheader("Stack Temperature vs O₂ Levels")
 row2_col2.plotly_chart(scatter_fig, use_container_width=True)
+row2_col2.caption("Correlates temperature and oxygen levels to optimize combustion efficiency.")
