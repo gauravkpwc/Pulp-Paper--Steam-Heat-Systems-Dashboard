@@ -1,6 +1,6 @@
 # Heatmap with meaningful axes
 sections = [f"Sec-{i+1}" for i in range(leak_severity.shape[1])]
-zones = [f"Zone-{i+1}" for i in range(leak_severity.shape[0]]
+zones = [f"Zone-{i+1}" for i in range(leak_severity.shape[0])]
 
 heatmap_fig = px.imshow(
     leak_severity,
