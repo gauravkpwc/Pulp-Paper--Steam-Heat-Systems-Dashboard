@@ -1,7 +1,6 @@
-import dash
-from dash import dcc, html
-import plotly.graph_objects as go
+import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
@@ -16,16 +15,31 @@ condensate_recovery = 92
 steam_per_kg_paper = 1.2
 leak_loss_percent = 3.5
 
-# Figures
-heatmap_fig = px.imshow(leak_severity, color_continuous_scale='RdYlGn_r',
-                        title='Real-time Leak Detection Map')
+# Streamlit Layout
+st.title("Steam & Heat Systems Dashboard")
 
+# KPIs
+st.subheader("Key KPIs")
+st.write(f"✅ Steam/kg of paper: **{steam_per_kg_paper:.2f} kg**")
+st.write(f"✅ Boiler efficiency: **{np.mean(boiler_efficiency):.2f}%** (Target > 85%)")
+st.write(f"✅ Condensate return rate: **{condensate_recovery:.2f}%** (Target > 90%)")
+st.write(f"✅ Leak loss %: **{leak_loss_percent:.2f}%**")
+
+# Visuals
+st.subheader("Real-time Leak Detection Map")
+heatmap_fig = px.imshow(leak_severity, color_continuous_scale='RdYlGn_r',
+                        title='Leak Detection Heatmap')
+st.plotly_chart(heatmap_fig)
+
+st.subheader("Boiler Efficiency Trend")
 efficiency_fig = go.Figure()
 efficiency_fig.add_trace(go.Scatter(x=time_series, y=boiler_efficiency,
                                     mode='lines', name='Efficiency (%)'))
 efficiency_fig.update_layout(title='Boiler Efficiency Trend',
                              xaxis_title='Date', yaxis_title='Efficiency (%)')
+st.plotly_chart(efficiency_fig)
 
+st.subheader("Condensate Recovery Gauge")
 gauge_fig = go.Figure(go.Indicator(
     mode="gauge+number+delta",
     value=condensate_recovery,
@@ -39,33 +53,10 @@ gauge_fig = go.Figure(go.Indicator(
                          'thickness': 0.75, 'value': 90}},
     title={'text': "Condensate Recovery (%)"}
 ))
+st.plotly_chart(gauge_fig)
 
+st.subheader("Stack Temperature vs O₂ Levels")
 scatter_fig = px.scatter(x=stack_temp, y=o2_levels,
                          labels={'x': 'Stack Temperature (°C)', 'y': 'O₂ Levels (%)'},
                          title='Stack Temperature vs O₂ Levels')
-
-# Dash App
-app = dash.Dash(__name__)
-app.layout = html.Div([
-    html.H1("Steam & Heat Systems Dashboard", style={'textAlign': 'center'}),
-
-    html.Div([
-        html.H3("Key KPIs"),
-        html.Ul([
-            html.Li(f"Steam/kg of paper: {steam_per_kg_paper:.2f} kg"),
-            html.Li(f"Boiler efficiency: {np.mean(boiler_efficiency):.2f}% (Target > 85%)"),
-            html.Li(f"Condensate return rate: {condensate_recovery:.2f}% (Target > 90%)"),
-            html.Li(f"Leak loss %: {leak_loss_percent:.2f}%")
-        ])
-    ], style={'marginBottom': '30px'}),
-
-    html.Div([
-        dcc.Graph(figure=heatmap_fig),
-        dcc.Graph(figure=efficiency_fig),
-        dcc.Graph(figure=gauge_fig),
-        dcc.Graph(figure=scatter_fig)
-    ])
-])
-
-if __name__ == '__main__':
-    app.run(debug=True)  # ✅ Updated method
+st.plotly_chart(scatter_fig)
