@@ -13,33 +13,42 @@ o2_levels = np.random.normal(loc=5, scale=1, size=100)
 leak_severity = np.random.rand(10, 10)
 condensate_recovery = 92
 steam_per_kg_paper = 1.2
-leak_loss_percent = 3.5
+leak_loss_percent = -2.5  # Simulating negative KPI for demo
 
-# Streamlit Layout
+# Title
 st.title("Steam & Heat Systems Dashboard")
 
-# KPIs
-st.subheader("Key KPIs")
-st.write(f"✅ Steam/kg of paper: **{steam_per_kg_paper:.2f} kg**")
-st.write(f"✅ Boiler efficiency: **{np.mean(boiler_efficiency):.2f}%** (Target > 85%)")
-st.write(f"✅ Condensate return rate: **{condensate_recovery:.2f}%** (Target > 90%)")
-st.write(f"✅ Leak loss %: **{leak_loss_percent:.2f}%**")
+# KPIs Row
+st.markdown("### Key KPIs")
+col1, col2, col3, col4 = st.columns(4)
 
-# Visuals
-st.subheader("Real-time Leak Detection Map")
+col1.markdown(f"<div style='font-size:18px; font-weight:bold;'>Steam/kg of paper:<br>{steam_per_kg_paper:.2f} kg</div>", unsafe_allow_html=True)
+col2.markdown(f"<div style='font-size:18px; font-weight:bold;'>Boiler Efficiency:<br>{np.mean(boiler_efficiency):.2f}%</div>", unsafe_allow_html=True)
+col3.markdown(f"<div style='font-size:18px; font-weight:bold;'>Condensate Return:<br>{condensate_recovery:.2f}%</div>", unsafe_allow_html=True)
+
+# Highlight negative KPI in red
+color = "red" if leak_loss_percent < 0 else "black"
+col4.markdown(f"<div style='font-size:18px; font-weight:bold; color:{color};'>Leak Loss %:<br>{leak_loss_percent:.2f}%</div>", unsafe_allow_html=True)
+
+# Charts in 2x2 Grid
+st.markdown("### System Visualizations")
+row1_col1, row1_col2 = st.columns(2)
+row2_col1, row2_col2 = st.columns(2)
+
+# Heatmap
 heatmap_fig = px.imshow(leak_severity, color_continuous_scale='RdYlGn_r',
                         title='Leak Detection Heatmap')
-st.plotly_chart(heatmap_fig)
+row1_col1.plotly_chart(heatmap_fig, use_container_width=True)
 
-st.subheader("Boiler Efficiency Trend")
+# Boiler Efficiency Trend
 efficiency_fig = go.Figure()
 efficiency_fig.add_trace(go.Scatter(x=time_series, y=boiler_efficiency,
                                     mode='lines', name='Efficiency (%)'))
 efficiency_fig.update_layout(title='Boiler Efficiency Trend',
                              xaxis_title='Date', yaxis_title='Efficiency (%)')
-st.plotly_chart(efficiency_fig)
+row1_col2.plotly_chart(efficiency_fig, use_container_width=True)
 
-st.subheader("Condensate Recovery Gauge")
+# Condensate Recovery Gauge
 gauge_fig = go.Figure(go.Indicator(
     mode="gauge+number+delta",
     value=condensate_recovery,
@@ -53,10 +62,10 @@ gauge_fig = go.Figure(go.Indicator(
                          'thickness': 0.75, 'value': 90}},
     title={'text': "Condensate Recovery (%)"}
 ))
-st.plotly_chart(gauge_fig)
+row2_col1.plotly_chart(gauge_fig, use_container_width=True)
 
-st.subheader("Stack Temperature vs O₂ Levels")
+# Scatter Plot
 scatter_fig = px.scatter(x=stack_temp, y=o2_levels,
                          labels={'x': 'Stack Temperature (°C)', 'y': 'O₂ Levels (%)'},
                          title='Stack Temperature vs O₂ Levels')
-st.plotly_chart(scatter_fig)
+row2_col2.plotly_chart(scatter_fig, use_container_width=True)
